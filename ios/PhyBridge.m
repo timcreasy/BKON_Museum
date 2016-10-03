@@ -37,7 +37,7 @@ RCT_EXPORT_METHOD(stopScanningForBeacons)
 
 // CALLED WHEN BEACONS FOUND
 - (void)phyManager:(PHYEddystoneManager *)manager didScanBeacons:(NSArray *)beacons {
-  
+
     NSMutableArray* beaconsArray = [NSMutableArray array];
     for (int i = 0; i < beacons.count; i++)
     {
@@ -55,21 +55,21 @@ RCT_EXPORT_METHOD(stopScanningForBeacons)
                               (beacon.desc ?: null),@"desc",
                               (beacon.jsonLd ?: null),@"jsonLd",
                               nil];
-      
+
       [beaconsArray addObject:dict];
     }
-    
+
     // JSONify beacon data
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:beaconsArray
                                                        options:NSJSONWritingPrettyPrinted
                                                          error:&error];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-  
+
     NSLog(@"%@", jsonString);
 
     [self.bridge.eventDispatcher sendAppEventWithName:@"BeaconsFound" body:jsonString];
-  
+
 }
 
 @end

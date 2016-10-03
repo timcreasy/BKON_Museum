@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
   RefreshControl
 } from 'react-native';
 import {Card, CardItem, Thumbnail } from 'native-base';
@@ -13,7 +12,7 @@ import { NativeModules } from 'react-native';
 import { NativeAppEventEmitter } from 'react-native';
 
 const PhyBridge = NativeModules.PhyBridge;
-const API_KEY = "51fd9f81-3d04-5c1b-8cd3-d86a3ea04453";
+const API_KEY = "YOUR_API_KEY";
 
 const Museum = React.createClass({
 
@@ -33,7 +32,9 @@ const Museum = React.createClass({
 
   componentDidMount() {
     PhyBridge.initPhyManagerWithApiKey(API_KEY);
-    this.listenForBeacons();
+    NativeAppEventEmitter.addListener('BeaconsFound', (beacons) => {
+      this.setState({tempBeaconList: JSON.parse(beacons)});
+    });
     PhyBridge.startScanningForBeacons();
     this.setState({refreshing: true});
     setTimeout(() => {
@@ -67,31 +68,27 @@ const Museum = React.createClass({
   render() {
     return (
     <View style={styles.container}>
-     <ParallaxView
-          backgroundSource={require('./imgs/museum2.jpg')}
-          windowHeight={300}
-          refreshControl={
-              <RefreshControl
-                refreshing={this.state.refreshing}
-                onRefresh={this.onRefresh}
-              />
-          } >
-          <View style={styles.exhibitsContainer}>
-
-           <Text style={styles.exhibitsHeader}>Exhibits Near You</Text>
-              {
+      <ParallaxView
+        backgroundSource={require('./imgs/museum.jpg')}
+        windowHeight={300}
+        refreshControl={
+          <RefreshControl
+            refreshing={this.state.refreshing}
+            onRefresh={this.onRefresh}
+          />
+        } >
+        <View style={styles.exhibitsContainer}>
+          <Text style={styles.exhibitsHeader}>Exhibits Near You</Text>
+            {
               this.state.beacons.map((beacon, index) => {
-
                 const favicon = beacon.faviconUrl;
-
                 return (
-
                   <Card key={index}>
-                    <CardItem button onPress={() => console.log("Exhibit selected")}>
+                    <CardItem>
                       <Thumbnail source={{uri: favicon}} />
                       <Text>{beacon.title}</Text>
                     </CardItem>
-                    <CardItem cardBody button onPress={() => console.log("Exhibit selected")}>
+                    <CardItem cardBody>
                       <Text>{beacon.desc}</Text>
                     </CardItem>
                   </Card>
@@ -100,9 +97,6 @@ const Museum = React.createClass({
             }
           </View>
         </ParallaxView>
-
-
-
       </View>
     );
   }
@@ -111,18 +105,6 @@ const Museum = React.createClass({
 const styles = StyleSheet.create({
   container: {
     flex: 1
-  },
-  header: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    paddingHorizontal: 100,
-    paddingVertical: 24
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#253137'
   },
   exhibitsContainer: {
     paddingHorizontal: 10,
@@ -133,16 +115,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#253137',
     paddingBottom: 15
-  },
-  beaconCard: {
-    flex: 1
-  },
-  beaconTextContainer: {
-    flex: 1
-  },
-  title: {
-    fontSize: 15,
-    backgroundColor: 'transparent'
   }
 });
 
