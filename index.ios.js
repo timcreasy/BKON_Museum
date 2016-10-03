@@ -24,12 +24,6 @@ const Museum = React.createClass({
     });
   },
 
-  listenForBeacons() {
-    NativeAppEventEmitter.addListener('BeaconsFound', (beacons) => {
-      this.setState({tempBeaconList: JSON.parse(beacons)});
-    });
-  },
-
   componentDidMount() {
     PhyBridge.initPhyManagerWithApiKey(API_KEY);
     NativeAppEventEmitter.addListener('BeaconsFound', (beacons) => {
@@ -49,7 +43,7 @@ const Museum = React.createClass({
   },
 
   scanForBeacons() {
-    if (this.state.refreshing != true) {
+    if (!this.state.refreshing) {
       this.setState({refreshing: true});
       PhyBridge.stopScanningForBeacons();
       PhyBridge.startScanningForBeacons();
@@ -61,10 +55,6 @@ const Museum = React.createClass({
     }
   },
 
-  onRefresh() {
-    this.scanForBeacons();
-  },
-
   render() {
     return (
     <View style={styles.container}>
@@ -74,7 +64,7 @@ const Museum = React.createClass({
         refreshControl={
           <RefreshControl
             refreshing={this.state.refreshing}
-            onRefresh={this.onRefresh}
+            onRefresh={this.scanForBeacons}
           />
         } >
         <View style={styles.exhibitsContainer}>
